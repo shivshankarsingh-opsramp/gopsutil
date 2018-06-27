@@ -301,7 +301,7 @@ func getLSB() (*LSB, error) {
 	return ret, nil
 }
 
-func PlatformInformation() (platform string, family string, version string, err error) {
+func PlatformInformation() (platform string, family string, version string, description string, err error) {
 	return PlatformInformationWithContext(context.Background())
 }
 
