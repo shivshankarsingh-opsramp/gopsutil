@@ -46,7 +46,7 @@ func InfoWithContext(ctx context.Context) (*InfoStat, error) {
 		}
 	}
 
-	platform, family, pver, err := PlatformInformation()
+	platform, family, pver, _, err := PlatformInformation()
 	if err == nil {
 		ret.Platform = platform
 		ret.PlatformFamily = family
@@ -174,31 +174,46 @@ func PlatformInformation() (string, string, string, error) {
 	return PlatformInformationWithContext(context.Background())
 }
 
-func PlatformInformationWithContext(ctx context.Context) (string, string, string, error) {
+func PlatformInformationWithContext(ctx context.Context) (string, string, string, string, error) {
 	platform := ""
 	family := ""
 	pver := ""
+	description := ""
 
 	sw_vers, err := exec.LookPath("sw_vers")
 	if err != nil {
-		return "", "", "", err
+		return "", "", "", "", err
 	}
 	uname, err := exec.LookPath("uname")
 	if err != nil {
-		return "", "", "", err
+		return "", "", "", "", err
 	}
 
 	out, err := invoke.CommandWithContext(ctx, uname, "-s")
 	if err == nil {
 		platform = strings.ToLower(strings.TrimSpace(string(out)))
+		family = platform
+	}
+	
+	//added by opsramp
+	out, err = invoke.CommandWithContext(ctx, sw_vers, "-productName")
+	if err == nil {
+		productName := strings.TrimSpace(string(out))
+		if strings.HasPrefix(productName, "Mac") {
+			productName = "macOS"
+		}
+		productName = strings.Replace(productName, "\"", "", -1)
+		description += productName
+		family = productName
 	}
 
 	out, err = invoke.CommandWithContext(ctx, sw_vers, "-productVersion")
 	if err == nil {
 		pver = strings.ToLower(strings.TrimSpace(string(out)))
+		pver = strings.Replace(pver, "\"", "", -1)
+		description += " " + pver
 	}
-
-	return platform, family, pver, nil
+	return platform, family, pver, description, nil
 }
 
 func Virtualization() (string, string, error) {
