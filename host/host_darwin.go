@@ -170,7 +170,7 @@ func UsersWithContext(ctx context.Context) ([]UserStat, error) {
 
 }
 
-func PlatformInformation() (string, string, string, error) {
+func PlatformInformation() (string, string, string, string, error) {
 	return PlatformInformationWithContext(context.Background())
 }
 
