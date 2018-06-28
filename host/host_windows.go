@@ -57,7 +57,7 @@ func InfoWithContext(ctx context.Context) (*InfoStat, error) {
 	}
 
 	{
-		platform, family, version, err := PlatformInformationWithContext(ctx)
+		platform, family, version, _, err := PlatformInformationWithContext(ctx)
 		if err == nil {
 			ret.Platform = platform
 			ret.PlatformFamily = family
@@ -164,11 +164,11 @@ func BootTimeWithContext(ctx context.Context) (uint64, error) {
 	return t, nil
 }
 
-func PlatformInformation() (platform string, family string, version string, err error) {
+func PlatformInformation() (platform string, family string, version string, description string, err error) {
 	return PlatformInformationWithContext(context.Background())
 }
 
-func PlatformInformationWithContext(ctx context.Context) (platform string, family string, version string, err error) {
+func PlatformInformationWithContext(ctx context.Context) (platform string, family string, version string, description string, err error) {
 	// GetVersionEx lies on Windows 8.1 and returns as Windows 8 if we don't declare compatibility in manifest
 	// RtlGetVersion bypasses this lying layer and returns the true Windows version
 	// https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/content/wdm/nf-wdm-rtlgetversion
