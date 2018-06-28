@@ -1,0 +1,162 @@
+Changes in gopsutil:
+--------------------
+1. cpu/cpu_linux.go
+
+	#Added cpu cores and clflush size in CPUInfoStat
+
+	case "cpu cores":
+		c.NumberOfCores = value
+	case "clflush size":
+		c.DataWidth = value
+
+2. cpu/cpu.go
+
+	#Added NumberOfCores and DataWidth in InfoStat strucure
+
+	NumberOfCores      string    `json:"numberofcores"`
+	DataWidth      string    `json:"datawidth"`
+
+3. host/host_darwin.go
+
+	-- Added in PlatformInformationWithContext() below code(added extra return argument string for description "string,")
+		--description := ""
+
+		--family = platform
+
+		--//added by opsramp
+		out, err = invoke.CommandWithContext(ctx, sw_vers, "-productName")
+		if err == nil {
+			productName := strings.TrimSpace(string(out))
+			if strings.HasPrefix(productName, "Mac") {
+				productName = "macOS"
+			}
+			productName = strings.Replace(productName, "\"", "", -1)
+			description += productName
+			family = productName
+		}
+
+		--pver = strings.Replace(pver, "\"", "", -1)
+		description += " " + pver
+
+	--in Hostinfo() fucntion
+	platform, family, version, err := PlatformInformation()
+
+
+4. host/host_linux.go
+
+	--in getOSRelease() function added argument desciption and related code
+
+		case "PRETTY_NAME":
+			description = field[1]
+		}
+
+	--in getLSB() function added below code
+
+		-if strings.TrimSpace(string(out[:])) == "" {
+		out, err = invoke.Command(lsb_release, "-a")
+		...
+		}
+
+		-strings.TrimSpace(field[0])
+		-strings.TrimSpace(field[1]) -- 4 places
+
+	-- Added in PlatformInformationWithContext() below code(added extra return argument string for description "string,")
+	
+		--description = contents[0] --> 6 places
+
+		--description = lsb.Description --> 10+ places
+
+		--else if common.PathExists("/etc/redhat-release") {
+			contents, err := common.ReadLines("/etc/redhat-release")
+			if err == nil {
+				version = getRedhatishVersion(contents)
+				platform = getRedhatishPlatform(contents)
+				description = contents[0]				
+			}
+		} else if common.PathExists("/etc/fedora-release") {
+			contents, err := common.ReadLines("/etc/fedora-release")
+			if err == nil {
+				version = getRedhatishVersion(contents)				
+				platform = getRedhatishPlatform(contents)
+				description = contents[0]
+			}
+		} 
+
+		-- case "suse", "opensuse", "sles":
+
+
+	-- in getSusePlatform() function
+
+		if strings.Contains(c, "sles") {
+			return "sles"
+		}
+
+
+	--in Hostinfo() fucntion
+
+		platform, family, version, err := PlatformInformation()
+
+5. host/host_windows.go
+
+	--  Added in PlatformInformationWithContext() extra return argument string for description "string"
+
+6. mem/mem_windows.go
+
+	-- Added below code in VirtualMemoryWithContext()
+
+	TotalVir:         memInfo.ullTotalVirtual,
+	AvailableVir:     memInfo.ullAvailVirtual, 
+
+7. mem/mem.go
+
+	-- Added below code in VirtualMemoryStat struct
+
+	//opsramp specific uses
+	TotalVir    uint64  `json:"totalVir"`
+	AvailableVir uint64  `json:"availableVir"`
+
+
+8. process/process_darwin.go
+
+	-- Added MemoryPercent() function
+
+		func (p *Process) MemoryPercent() (float32, error) {
+
+			machineMemory, err := mem.VirtualMemory()
+			if err != nil {
+				return 0, err
+			}
+			total := machineMemory.Total
+
+			processMemory, err := p.MemoryInfo()
+			if err != nil {
+				return 0, err
+			}
+			used := processMemory.RSS
+
+			return (100 * float32(used) / float32(total)), nil
+		}
+
+	-- Added Import for "github.com/shirou/gopsutil/mem"
+
+p. process/process_linux.go
+
+	-- Added MemoryPercent() function
+
+		func (p *Process) MemoryPercent() (float32, error) {
+			machineMemory, err := mem.VirtualMemory()
+			if err != nil {
+				return 0, err
+			}
+			total := machineMemory.Total
+
+			processMemory, err := p.MemoryInfo()
+			if err != nil {
+				return 0, err
+			}
+			used := processMemory.RSS
+
+			return (100 * float32(used) / float32(total)), nil
+		}
+	
+	-- Added Import for "github.com/shirou/gopsutil/mem"
