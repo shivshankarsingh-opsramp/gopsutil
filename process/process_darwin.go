@@ -16,6 +16,7 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/internal/common"
 	"github.com/shirou/gopsutil/net"
+	"github.com/shirou/gopsutil/mem"
 	"golang.org/x/sys/unix"
 )
 
@@ -460,6 +461,24 @@ func (p *Process) MemoryInfoEx() (*MemoryInfoExStat, error) {
 
 func (p *Process) MemoryInfoExWithContext(ctx context.Context) (*MemoryInfoExStat, error) {
 	return nil, common.ErrNotImplementedError
+}
+
+func (p *Process) MemoryPercent() (float32, error) {
+
+	machineMemory, err := mem.VirtualMemory()
+	if err != nil {
+		return 0, err
+	}
+	total := machineMemory.Total
+
+	processMemory, err := p.MemoryInfo()
+	if err != nil {
+		return 0, err
+	}
+	used := processMemory.RSS
+
+	return (100 * float32(used) / float32(total)), nil
+
 }
 
 func (p *Process) Children() ([]*Process, error) {
