@@ -258,6 +258,6 @@ func KernelVersion() (string, error) {
 }
 
 func KernelVersionWithContext(ctx context.Context) (string, error) {
-	_, _, version, err := PlatformInformation()
+	_, _, version, _, err := PlatformInformation()
 	return version, err
 }
