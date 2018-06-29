@@ -224,7 +224,7 @@ func PlatformInformationWithContext(ctx context.Context) (platform string, famil
 	// Platform Version
 	version = fmt.Sprintf("%d.%d.%d Build %d", osInfo.dwMajorVersion, osInfo.dwMinorVersion, osInfo.dwBuildNumber, osInfo.dwBuildNumber)
 
-	return platform, family, version, nil
+	return platform, family, version, description, nil
 }
 
 func Users() ([]UserStat, error) {
