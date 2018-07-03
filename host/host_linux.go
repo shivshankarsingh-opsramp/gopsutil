@@ -224,7 +224,7 @@ func UsersWithContext(ctx context.Context) ([]UserStat, error) {
 func getOSRelease() (platform string, version string,description string, err error) {
 	contents, err := common.ReadLines(common.HostEtc("os-release"))
 	if err != nil {
-		return "", "", nil // return empty
+		return "", "", "", nil // return empty
 	}
 	for _, line := range contents {
 		field := strings.Split(line, "=")
