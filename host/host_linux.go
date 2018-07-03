@@ -236,7 +236,6 @@ func getOSRelease() (platform string, version string,description string, err err
 			platform = field[1]
 		case "VERSION":
 			version = field[1]
-		}
 		case "PRETTY_NAME":
 			description = field[1]
 		}
