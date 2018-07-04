@@ -19,8 +19,7 @@ import (
 	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/internal/common"
 	"github.com/shirou/gopsutil/net"
-	"golang.org/x/sys/unix"
-	"github.com/shirou/gopsutil/mem"
+	"golang.org/x/sys/unix"	
 )
 
 var PageSize = uint64(os.Getpagesize())
