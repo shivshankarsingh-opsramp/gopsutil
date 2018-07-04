@@ -612,22 +612,6 @@ func (p *Process) MemoryMapsWithContext(ctx context.Context, grouped bool) (*[]M
 	return &ret, nil
 }
 
-func (p *Process) MemoryPercent() (float32, error) {
-	machineMemory, err := mem.VirtualMemory()
-	if err != nil {
-		return 0, err
-	}
-	total := machineMemory.Total
-
-	processMemory, err := p.MemoryInfo()
-	if err != nil {
-		return 0, err
-	}
-	used := processMemory.RSS
-
-	return (100 * float32(used) / float32(total)), nil
-}
-
 /**
 ** Internal functions
 **/
