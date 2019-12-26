@@ -41,7 +41,7 @@ func InfoWithContext(ctx context.Context) (*InfoStat, error) {
 		ret.Hostname = hostname
 	}
 
-	platform, family, version, err := PlatformInformation()
+	platform, family, version,_, err := PlatformInformation()
 	if err == nil {
 		ret.Platform = platform
 		ret.PlatformFamily = family
@@ -162,11 +162,11 @@ func UsersWithContext(ctx context.Context) ([]UserStat, error) {
 
 }
 
-func PlatformInformation() (string, string, string, error) {
+func PlatformInformation() (string, string, string, string,error) {
 	return PlatformInformationWithContext(context.Background())
 }
 
-func PlatformInformationWithContext(ctx context.Context) (string, string, string, error) {
+func PlatformInformationWithContext(ctx context.Context) (string, string, string, string,error) {
 	platform, err := unix.Sysctl("kern.ostype")
 	if err != nil {
 		return "", "", "", err
@@ -177,7 +177,7 @@ func PlatformInformationWithContext(ctx context.Context) (string, string, string
 		return "", "", "", err
 	}
 
-	return strings.ToLower(platform), "", strings.ToLower(version), nil
+	return strings.ToLower(platform), "", strings.ToLower(version),"", nil
 }
 
 func Virtualization() (string, string, error) {
@@ -240,6 +240,6 @@ func KernelVersion() (string, error) {
 }
 
 func KernelVersionWithContext(ctx context.Context) (string, error) {
-	_, _, version, err := PlatformInformation()
+	_, _, version,_, err := PlatformInformation()
 	return version, err
 }
