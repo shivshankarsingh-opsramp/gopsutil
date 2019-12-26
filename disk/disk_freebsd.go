@@ -12,13 +12,13 @@ import (
 
 	"golang.org/x/sys/unix"
 
+	"github.com/shirou/gopsutil/internal/common"
+
 	"bufio"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
-
-	"github.com/shirou/gopsutil/internal/common"
 )
 
 func Partitions(all bool) ([]PartitionStat, error) {
