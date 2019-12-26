@@ -169,12 +169,12 @@ func PlatformInformation() (string, string, string, string,error) {
 func PlatformInformationWithContext(ctx context.Context) (string, string, string, string,error) {
 	platform, err := unix.Sysctl("kern.ostype")
 	if err != nil {
-		return "", "", "", err
+		return "", "", "", "",err
 	}
 
 	version, err := unix.Sysctl("kern.osrelease")
 	if err != nil {
-		return "", "", "", err
+		return "", "", "","", err
 	}
 
 	return strings.ToLower(platform), "", strings.ToLower(version),"", nil
