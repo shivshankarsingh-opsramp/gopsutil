@@ -12,6 +12,12 @@ import (
 
 	"golang.org/x/sys/unix"
 
+	"bufio"
+	"fmt"
+	"io/ioutil"
+	"path/filepath"
+	"strings"
+
 	"github.com/shirou/gopsutil/internal/common"
 )
 
@@ -193,4 +199,43 @@ func parseDevstat(buf []byte) (Devstat, error) {
 
 func getFsType(stat unix.Statfs_t) string {
 	return common.IntToString(stat.Fstypename[:])
+}
+
+//added from disk_linux.go
+// GetDiskSerialNumber returns Serial Number of given device or empty string
+// on error. Name of device is expected, eg. /dev/sda
+func GetDiskSerialNumber(name string) string {
+	return GetDiskSerialNumberWithContext(context.Background(), name)
+}
+
+func GetDiskSerialNumberWithContext(ctx context.Context, name string) string {
+	var stat unix.Stat_t
+	err := unix.Stat(name, &stat)
+	if err != nil {
+		return ""
+	}
+	major := unix.Major(uint64(stat.Rdev))
+	minor := unix.Minor(uint64(stat.Rdev))
+
+	// Try to get the serial from udev data
+	udevDataPath := fmt.Sprintf("/run/udev/data/b%d:%d", major, minor)
+	if udevdata, err := ioutil.ReadFile(udevDataPath); err == nil {
+		scanner := bufio.NewScanner(bytes.NewReader(udevdata))
+		for scanner.Scan() {
+			values := strings.Split(scanner.Text(), "=")
+			if len(values) == 2 && values[0] == "E:ID_SERIAL" {
+				return values[1]
+			}
+		}
+	}
+
+	// Try to get the serial from sysfs, look at the disk device (minor 0) directly
+	// because if it is a partition it is not going to contain any device information
+	devicePath := fmt.Sprintf("/sys/dev/block/%d:0/device", major)
+	model, _ := ioutil.ReadFile(filepath.Join(devicePath, "model"))
+	serial, _ := ioutil.ReadFile(filepath.Join(devicePath, "serial"))
+	if len(model) > 0 && len(serial) > 0 {
+		return fmt.Sprintf("%s_%s", string(model), string(serial))
+	}
+	return ""
 }
